@@ -5,11 +5,13 @@ import matplotlib.pyplot as plt
 from PyQt5.QtWidgets import (
     QApplication, QMainWindow, QVBoxLayout, QPushButton, QWidget,
     QFileDialog, QTableWidget, QTableWidgetItem, QLabel, QComboBox,
-    QLineEdit, QHBoxLayout
+    QLineEdit, QHBoxLayout, QGroupBox
 )
+from PyQt5.QtGui import QColor
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 
 os.environ["QT_PLUGIN_PATH"] = "C:/Users/Владислав/AppData/Local/Programs/Python/Python313/Lib/site-packages/PyQt5/Qt5/plugins"
+
 
 class DataApp(QMainWindow):
     def __init__(self):
@@ -19,54 +21,71 @@ class DataApp(QMainWindow):
 
     def initUI(self):
         self.setWindowTitle("Data Visualization App")
-
+        self.setStyleSheet("background-color: #f0f0f0; font-size: 14px; font-family: Arial;")
+        
         central_widget = QWidget()
         self.setCentralWidget(central_widget)
 
         layout = QVBoxLayout()
 
+        # Group Box for Controls
+        controls_group = QGroupBox("Управление данными и графиками")
+        controls_layout = QVBoxLayout()
+
         # Кнопка загрузки данных
         self.load_button = QPushButton("Загрузить данные")
+        self.load_button.setStyleSheet("background-color: #4CAF50; color: white; padding: 10px; border-radius: 5px;")
         self.load_button.clicked.connect(self.load_data)
-        layout.addWidget(self.load_button)
+        controls_layout.addWidget(self.load_button)
 
-        # Поле для отображения таблицы статистики
-        self.stats_table = QTableWidget()
-        layout.addWidget(self.stats_table)
-
-        # Выбор типа графика
+        # Поле для выбора типа графика
         self.graph_type_combo = QComboBox()
         self.graph_type_combo.addItems(["Линейный график", "Гистограмма", "Круговая диаграмма"])
+        self.graph_type_combo.setStyleSheet("padding: 10px;")
         self.graph_type_combo.currentIndexChanged.connect(self.toggle_input_fields)
         self.graph_type_combo.currentIndexChanged.connect(self.update_graph)
-        layout.addWidget(self.graph_type_combo)
-
-        # Поле для отображения графика
-        self.figure_canvas = FigureCanvas(plt.figure())
-        layout.addWidget(self.figure_canvas)
+        controls_layout.addWidget(self.graph_type_combo)
 
         # Поле для добавления данных
         add_data_layout = QHBoxLayout()
         self.add_date_field = QLineEdit()
         self.add_date_field.setPlaceholderText("Дата (YYYY-MM-DD)")
+        self.add_date_field.setStyleSheet("padding: 10px;")
         add_data_layout.addWidget(self.add_date_field)
 
         self.add_value1_field = QLineEdit()
         self.add_value1_field.setPlaceholderText("Value1")
+        self.add_value1_field.setStyleSheet("padding: 10px;")
         add_data_layout.addWidget(self.add_value1_field)
 
         self.add_value2_field = QLineEdit()
         self.add_value2_field.setPlaceholderText("Value2")
+        self.add_value2_field.setStyleSheet("padding: 10px;")
         add_data_layout.addWidget(self.add_value2_field)
 
         self.add_category_field = QLineEdit()
         self.add_category_field.setPlaceholderText("Category")
+        self.add_category_field.setStyleSheet("padding: 10px;")
         add_data_layout.addWidget(self.add_category_field)
 
         self.add_button = QPushButton("Добавить данные")
+        self.add_button.setStyleSheet("background-color: #2196F3; color: white; padding: 10px; border-radius: 5px;")
         self.add_button.clicked.connect(self.add_data)
         add_data_layout.addWidget(self.add_button)
-        layout.addLayout(add_data_layout)
+
+        controls_layout.addLayout(add_data_layout)
+
+        controls_group.setLayout(controls_layout)
+        layout.addWidget(controls_group)
+
+        # Поле для отображения таблицы статистики
+        self.stats_table = QTableWidget()
+        self.stats_table.setStyleSheet("background-color: white; padding: 10px;")
+        layout.addWidget(self.stats_table)
+
+        # Поле для отображения графика
+        self.figure_canvas = FigureCanvas(plt.figure())
+        layout.addWidget(self.figure_canvas)
 
         # Скрытие полей по умолчанию
         self.add_date_field.setVisible(False)
@@ -97,7 +116,7 @@ class DataApp(QMainWindow):
             self.stats_table.setColumnCount(stats.shape[1])
             self.stats_table.setHorizontalHeaderLabels(stats.columns)
             self.stats_table.setVerticalHeaderLabels(list(stats.index.astype(str)) + ["Общая информация"])
-            
+
             for i in range(stats.shape[0]):
                 for j in range(stats.shape[1]):
                     self.stats_table.setItem(i, j, QTableWidgetItem(str(round(stats.iloc[i, j], 2))))
@@ -163,6 +182,7 @@ class DataApp(QMainWindow):
             ax.pie(category_counts, labels=category_counts.index, autopct="%1.1f%%")
 
         self.figure_canvas.draw()
+
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
